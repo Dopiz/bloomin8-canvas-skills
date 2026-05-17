@@ -215,4 +215,4 @@ curl -sS -X DELETE "http://$BLOOMIN8_LAN_IP/playlist?name=daily_show"
 
 ## Reference
 
-OpenAPI spec: https://github.com/ARPOBOT-BLOOMIN8/eink_canvas_home_assistant_component/blob/main/openapi.yaml
+Official API documentation: <https://bloomin8.readme.io/>
