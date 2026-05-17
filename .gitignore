@@ -1,0 +1,12 @@
+# Secrets — never commit (.env holds CANVAS_DEVICE_TOKEN)
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
