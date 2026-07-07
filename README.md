@@ -5,7 +5,7 @@
 This repo has two ways in, and neither has a hard dependency on the other:
 
 1. **As a [Claude Code](https://claude.com/claude-code) Agent Skill** — drive the frame with natural language (push images, manage galleries/playlists, render live dashboards) through Claude Code's Skill mechanism. See [Using it with Claude Code](#using-it-with-claude-code) below.
-2. **As plain Python/shell scripts** — every operation is a self-contained `uv run` script or `curl` call with no LLM involved, so you can wire it into cron, systemd, Home Assistant, or anything else that can run a shell command. See **[docs/scripting.md](docs/scripting.md)**.
+2. **As plain Python/shell scripts** — every operation is a self-contained `uv run` script or `curl` call with no LLM involved, so you can wire it into cron, systemd, Home Assistant, or anything else that can run a shell command. See **[docs/SCRIPTING.md](docs/SCRIPTING.md)**.
 
 Device operations are centralized in a reusable Python client (`skills/bloomin8-canvas/scripts/client.py`) that both paths use identically. The cloud `einkshot.run.app` API is intentionally not used — everything here is device-to-device.
 
@@ -103,7 +103,7 @@ Claude reads [SKILL.md](skills/bloomin8-canvas/SKILL.md) and the task-specific f
 
 ## Using it without AI
 
-No part of this repo requires an LLM at runtime — the skill is a documentation/routing layer on top of plain scripts. If you want to drive the frame from cron, systemd, Home Assistant, or your own code instead of Claude Code, see **[docs/scripting.md](docs/scripting.md)** for the full command reference. Short version:
+No part of this repo requires an LLM at runtime — the skill is a documentation/routing layer on top of plain scripts. If you want to drive the frame from cron, systemd, Home Assistant, or your own code instead of Claude Code, see **[docs/SCRIPTING.md](docs/SCRIPTING.md)** for the full command reference. Short version:
 
 ```bash
 uv run skills/bloomin8-canvas/scripts/weather.py --city Taipei --out /tmp/weather.jpg
