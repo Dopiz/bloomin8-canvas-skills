@@ -122,6 +122,11 @@ def upload_and_show(path: str, gallery: str = "default", prefix: str = "frame", 
 
 def cleanup_old(prefix: str, keep: str, gallery: str = "default") -> list:
     """Delete gallery images whose name starts with `prefix`, except `keep`."""
+    # Guard against `--keep "$FN"` where FN came from a FAILED upload (empty
+    # string): without this, cleanup would delete every same-prefix image,
+    # including the one currently on the panel.
+    if not keep.strip():
+        raise SystemExit("cleanup: --keep is empty (did the preceding upload fail?); refusing to delete everything")
     listing = _request("GET", "/gallery", params={"gallery_name": gallery, "offset": 0, "limit": 200})
     deleted = []
     for item in listing.get("data", []):
