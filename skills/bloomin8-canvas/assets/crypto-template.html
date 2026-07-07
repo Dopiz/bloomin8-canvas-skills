@@ -97,6 +97,9 @@
     font-variant-numeric: tabular-nums;
     line-height: 1.05;
   }
+  /* The negative tracking above squeezes the $ into the first digit —
+     give the currency symbol its own breathing room. */
+  .price .cur { margin-right: 0.07em; }
   .chart { flex: 1; min-height: 0; position: relative; }
   .chart svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   /* Endpoint dot lives outside the stretched SVG so it stays a true circle */

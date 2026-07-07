@@ -129,7 +129,7 @@ def build_card(symbol: str, rng: str) -> str:
         <div class="symbol-wrap">{icon_html(base)}<div class="symbol">{base} <small>/ {quote}</small></div></div>
         <div class="badge {'up' if up else 'down'}">{'▲' if up else '▼'} {abs(change):.2f}%<span class="tf">24H</span></div>
       </div>
-      <div class="price">${fmt_price(price)}</div>
+      <div class="price"><span class="cur">$</span>{fmt_price(price)}</div>
       <div class="chart">{sparkline_chart(closes, range_open, accent)}</div>
       <div class="range-row"><span>L ${fmt_price(min(closes))}</span><span>H ${fmt_price(max(closes))}</span></div>
     </div></div>"""
