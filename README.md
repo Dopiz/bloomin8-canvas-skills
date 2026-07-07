@@ -52,10 +52,13 @@ One skill, **[bloomin8-canvas](skills/bloomin8-canvas/SKILL.md)**, organized by 
 - **Weather dashboard** (`references/weather.md`) — current temperature, condition, and rain probability up top, plus a 3-hourly forecast strip anchored at the current hour; data from Open-Meteo (no key), bold SVG icons tuned for e-ink.
 
   ```bash
-  # one-time: uv run --with playwright playwright install chromium
   uv run skills/bloomin8-canvas/scripts/render.py --symbols BTC,ETH,BNB,ADA --out /tmp/crypto.jpg
   uv run skills/bloomin8-canvas/scripts/client.py upload /tmp/crypto.jpg --prefix crypto
   ```
+
+> [!IMPORTANT]
+> **One-time setup** before the first dashboard render — the screenshot pipeline needs a headless Chromium:
+> `uv run --with playwright playwright install chromium`
 
 ### Demos
 
@@ -64,7 +67,6 @@ All rendered at the panel's native 1200×1600; landscape layouts are also suppor
 | Crypto | Weather | Countdown |
 |:---:|:---:|:---:|
 | <img src="docs/demo-crypto-dashboard.jpg" alt="Crypto dashboard — BTC/ETH/BNB/ADA with coin icons, 24H change badges, sparklines" width="260"> | <img src="docs/demo-weather-dashboard.jpg" alt="Weather dashboard — condition-driven gradient, line-art icons, 3-hourly forecast strip" width="260"> | <img src="docs/demo-countdown.jpg" alt="Countdown — days until a date over Met Museum artwork" width="260"> |
-| `render.py --symbols BTC,ETH,BNB,ADA` | `weather.py --city "Taipei City"` | `countdown.py --date 2026-12-31 --title "New Year's Eve"` |
 
 ## Using it with Claude Code
 
