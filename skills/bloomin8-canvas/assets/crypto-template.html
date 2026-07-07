@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Crypto Dashboard</title>
+<style>
+  /* E-ink (Spectra 6) design rules:
+     - Pure black/white base; saturated red/green only for up/down accents.
+     - Avoid mid-grays on large areas (they dither into noise); light gray is
+       only used for the sparkline area fill where a dotted texture is fine.
+     - Grid columns are injected by render.py ({{COLS_*}}) based on symbol
+       count; each card is a size container, so typography scales with the
+       card itself (cqmin/cqw) and any grid density works from one template. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; }
+  body {
+    background: #ffffff;
+    color: #000000;
+    font-family: "SF Pro Display", "Helvetica Neue", "PingFang TC", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 3.2vmin;
+    gap: 2.4vmin;
+  }
+  .cards {
+    flex: 1;
+    display: grid;
+    gap: 2.4vmin;
+    grid-template-columns: repeat({{COLS_PORTRAIT}}, 1fr);
+    grid-auto-rows: 1fr;
+    min-height: 0;
+  }
+  @media (orientation: landscape) {
+    .cards { grid-template-columns: repeat({{COLS_LANDSCAPE}}, 1fr); }
+  }
+  .card {
+    container-type: size;
+    border: 0.45vmin solid #000;
+    border-radius: 2.4vmin;
+    display: flex;
+    min-height: 0;
+    min-width: 0;
+  }
+  .card-inner {
+    flex: 1;
+    padding: 8cqmin 9cqmin;
+    display: flex;
+    flex-direction: column;
+    gap: 4.5cqmin;
+    min-height: 0;
+  }
+  /* Head elements clamp on cqw (container width) as well as cqmin: narrow
+     cards in dense grids are width-constrained, and unclamped sizes made
+     badges spill past the card edge and the pair label wrap. */
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 3cqmin;
+  }
+  .symbol-wrap { display: flex; align-items: center; gap: 3.5cqmin; min-width: 0; }
+  .icon {
+    width: min(16cqmin, 9cqw);
+    height: min(16cqmin, 9cqw);
+    border-radius: 50%;
+    flex: none;
+  }
+  .icon.fallback {
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: min(8cqmin, 4.5cqw);
+  }
+  .symbol { font-size: min(15cqmin, 8cqw); font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+  .symbol small { font-size: min(8cqmin, 4.3cqw); font-weight: 600; color: #000; }
+  .badge {
+    font-size: min(9cqmin, 4.5cqw);
+    font-weight: 800;
+    color: #fff;
+    border-radius: 3cqmin;
+    padding: 2cqmin 4.5cqmin;
+    white-space: nowrap;
+    flex: none;
+  }
+  .badge.up   { background: #009e3c; }
+  .badge.down { background: #e11900; }
+  .badge .tf  { font-weight: 600; opacity: 0.85; font-size: 0.7em; margin-left: 0.4em; }
+  .price {
+    /* cqmin scales with the card; the cqw clamp keeps long prices
+       (e.g. $100,000+) from overflowing narrow cards */
+    font-size: min(26cqmin, 15cqw);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.05;
+  }
+  /* The negative tracking above squeezes the $ into the first digit —
+     give the currency symbol its own breathing room. */
+  .price .cur { margin-right: 0.07em; }
+  .chart { flex: 1; min-height: 0; position: relative; }
+  .chart svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* Endpoint dot lives outside the stretched SVG so it stays a true circle */
+  .chart .dot {
+    position: absolute;
+    width: 3.2cqmin;
+    height: 3.2cqmin;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .range-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: min(7.5cqmin, 4.3cqw);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 2.4vmin;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="cards">
+{{CARDS}}
+  </div>
+  <div class="footer">
+    <span>{{RANGE_LABEL}} · Binance</span>
+    <span>Updated {{UPDATED_AT}}</span>
+  </div>
+</body>
+</html>

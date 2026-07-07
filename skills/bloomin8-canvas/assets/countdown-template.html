@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Countdown</title>
+<style>
+  /* Countdown screen: full-bleed artwork background, elegant serif type
+     bottom-center (mirrors the official app's countdown widget). A dark
+     bottom gradient scrim keeps white text legible on any painting; it
+     dithers acceptably on e-ink because it sits over busy artwork. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; }
+  body {
+    font-family: "Didot", "Playfair Display", "Times New Roman", Georgia, serif;
+    color: #ffffff;
+  }
+  .bg {
+    position: absolute;
+    inset: 0;
+    background-image: url({{BG_URI}});
+    background-size: cover;
+    background-position: center;
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+      rgba(0, 0, 0, 0.58) 0%,
+      rgba(0, 0, 0, 0.22) 32%,
+      rgba(0, 0, 0, 0) 58%);
+  }
+  .content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    text-align: center;
+    padding: 0 6vmin 9vmin;
+    text-shadow: 0 0.3vmin 1.8vmin rgba(0, 0, 0, 0.65);
+  }
+  .days { font-size: 24vmin; line-height: 1; }
+  .label {
+    font-size: 3vmin;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    margin: 2.4vmin 0 2.6vmin 0.45em; /* left margin offsets the trailing letter-spacing */
+  }
+  .title { font-size: 7vmin; line-height: 1.15; }
+  .date { font-size: 3.2vmin; margin-top: 1.8vmin; opacity: 0.92; }
+  .credit {
+    position: absolute;
+    left: 2.6vmin;
+    bottom: 2vmin;
+    max-width: 70vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.9vmin;
+    letter-spacing: 0.06em;
+    opacity: 0.72;
+    text-shadow: 0 0.2vmin 1vmin rgba(0, 0, 0, 0.7);
+  }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="scrim"></div>
+  <div class="content">
+    <div class="days">{{DAYS}}</div>
+    <div class="label">{{LABEL}}</div>
+    <div class="title">{{TITLE}}</div>
+    <div class="date">{{DATE}}</div>
+  </div>
+  <div class="credit">{{CREDIT}}</div>
+</body>
+</html>

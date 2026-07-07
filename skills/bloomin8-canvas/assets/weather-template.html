@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Weather</title>
+<style>
+  /* Full-bleed gradient card with white line-art icons, in the style of the
+     reference mock: the background gradient is driven by the CURRENT WEATHER
+     CONDITION group (see ICON_THEME in weather.py), not the clock — clear
+     skies get a warm sunny gradient, rain a steel blue, a thunderstorm a
+     dark dramatic purple-navy, and so on. Every theme keeps a dark-enough
+     base so white text/icons stay legible.
+     E-ink note (Spectra 6): saturated gradient hues dither into a soft
+     painterly texture, which reads well; white strokes/text stay crisp. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; }
+  body {
+    font-family: "Avenir Next", "Helvetica Neue", "PingFang TC", Arial, sans-serif;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    padding: 7vmin 6vmin 10vmin;
+  }
+  /* Clear / mostly clear: warm sunny amber-gold. */
+  body.theme-clear   { background: linear-gradient(170deg, #f8c94c 0%, #ee8a3c 100%); }
+  /* Partly cloudy / overcast: cool neutral slate blue-gray. */
+  body.theme-cloudy  { background: linear-gradient(170deg, #8b95a8 0%, #4a5268 100%); }
+  /* Fog: muted, pale gray-teal. */
+  body.theme-fog     { background: linear-gradient(170deg, #9ab0ab 0%, #56736e 100%); }
+  /* Drizzle / rain: blue / steel-blue. */
+  body.theme-rain    { background: linear-gradient(170deg, #4f7fa8 0%, #1e3c56 100%); }
+  /* Thunderstorm: dark, dramatic purple-navy. */
+  body.theme-thunder { background: linear-gradient(170deg, #4a3568 0%, #171225 100%); }
+  /* Snow: pale icy blue-white. */
+  body.theme-snow    { background: linear-gradient(170deg, #a8ccdb 0%, #5a7f92 100%); }
+
+  .header, .hero, .forecast-wrap { flex: none; }
+  .header { display: flex; flex-direction: column; align-items: center; }
+  .hero { display: flex; flex-direction: column; align-items: center; }
+
+  .date { font-size: 3.1vmin; font-weight: 500; letter-spacing: 0.06em; opacity: 0.95; }
+  .time { font-size: 7vmin; font-weight: 400; margin-top: 1.2vmin; }
+  .city { font-size: 3.1vmin; font-weight: 500; letter-spacing: 0.08em; margin-top: 1.6vmin; opacity: 0.95; }
+
+  .hero-icon { width: 29vmin; height: 29vmin; margin: 3vmin 0 2vmin; flex: none; }
+
+  .temp {
+    font-size: 18vmin;
+    font-weight: 200;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .condition { font-size: 4.6vmin; font-weight: 400; margin-top: 2vmin; letter-spacing: 0.04em; }
+  .subline { font-size: 2.9vmin; font-weight: 400; margin-top: 1.4vmin; opacity: 0.85; }
+
+  .rule {
+    width: 62vmin;
+    border-top: 0.22vmin solid rgba(255, 255, 255, 0.8);
+    margin: 3.5vmin 0 3vmin;
+  }
+
+  .forecast { display: flex; width: 100%; }
+  .cell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5vmin;
+  }
+  /* nowrap is load-bearing: portrait height is ~133vmin (vmin is based on the
+     shorter dimension, width), so the layout has little slack — a wrapped
+     "12 AM" label used to add enough height to push the forecast row past
+     the bottom edge, which overflow:hidden then silently clipped. */
+  .cell-time { font-size: 2.7vmin; font-weight: 500; letter-spacing: 0.02em; opacity: 0.95; white-space: nowrap; }
+  .cell-icon { width: 9vmin; height: 9vmin; }
+  .cell-temp { font-size: 4.2vmin; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .cell-pop { font-size: 2.9vmin; font-weight: 500; opacity: 0.85; font-variant-numeric: tabular-nums; }
+
+  @media (orientation: landscape) {
+    body { padding: 5vmin 6vmin 7vmin; }
+    .date, .city { font-size: 2.6vmin; }
+    .time { font-size: 5vmin; margin-top: 0.8vmin; }
+    .city { margin-top: 1vmin; }
+    .hero-icon { width: 18vmin; height: 18vmin; margin: 2.2vmin 0 1.4vmin; }
+    .temp { font-size: 13vmin; }
+    .condition { font-size: 3.8vmin; margin-top: 1.4vmin; }
+    .subline { font-size: 2.6vmin; margin-top: 1vmin; }
+    .rule { margin: 2.4vmin 0 2vmin; }
+    .forecast { width: 82%; }
+    .cell { gap: 1.1vmin; }
+    .cell-icon { width: 7.5vmin; height: 7.5vmin; }
+    .cell-temp { font-size: 3.6vmin; }
+    .cell-time, .cell-pop { font-size: 2.6vmin; }
+  }
+</style>
+</head>
+<body class="theme-{{THEME}}">
+  <!-- White line-art icon set (stroke only, no fills) drawn for e-ink. -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <g id="cloud-line">
+        <path d="M31 78 A16 16 0 0 1 31 46 A21 21 0 0 1 71 41 A17 17 0 0 1 74 78 Z"
+              fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/>
+      </g>
+      <symbol id="i-clear" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="19" fill="none" stroke="#fff" stroke-width="4.5"/>
+        <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+          <line x1="50" y1="10" x2="50" y2="21"/>
+          <line x1="50" y1="79" x2="50" y2="90"/>
+          <line x1="10" y1="50" x2="21" y2="50"/>
+          <line x1="79" y1="50" x2="90" y2="50"/>
+          <line x1="21.7" y1="21.7" x2="29.5" y2="29.5"/>
+          <line x1="70.5" y1="70.5" x2="78.3" y2="78.3"/>
+          <line x1="21.7" y1="78.3" x2="29.5" y2="70.5"/>
+          <line x1="70.5" y1="29.5" x2="78.3" y2="21.7"/>
+          <line x1="34.5" y1="12.6" x2="38.7" y2="22.7"/>
+          <line x1="61.3" y1="77.3" x2="65.5" y2="87.4"/>
+          <line x1="12.6" y1="34.5" x2="22.7" y2="38.7"/>
+          <line x1="77.3" y1="61.3" x2="87.4" y2="65.5"/>
+          <line x1="12.6" y1="65.5" x2="22.7" y2="61.3"/>
+          <line x1="77.3" y1="38.7" x2="87.4" y2="34.5"/>
+          <line x1="34.5" y1="87.4" x2="38.7" y2="77.3"/>
+          <line x1="61.3" y1="22.7" x2="65.5" y2="12.6"/>
+        </g>
+      </symbol>
+      <symbol id="i-partly" viewBox="0 0 100 100">
+        <circle cx="62" cy="34" r="14" fill="none" stroke="#fff" stroke-width="4.5"/>
+        <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+          <line x1="62" y1="6"  x2="62" y2="14"/>
+          <line x1="82" y1="14" x2="76.5" y2="19.5"/>
+          <line x1="90" y1="34" x2="82" y2="34"/>
+          <line x1="82" y1="54" x2="76.5" y2="48.5"/>
+          <line x1="42" y1="14" x2="47.5" y2="19.5"/>
+        </g>
+        <path d="M26 84 A13 13 0 0 1 26 58 A17 17 0 0 1 58 54 A14 14 0 0 1 61 84 Z"
+              fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="i-overcast" viewBox="0 0 100 100">
+        <path d="M44 46 A11 11 0 0 1 44 24 A15 15 0 0 1 73 21 A12 12 0 0 1 76 46"
+              fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <use href="#cloud-line" transform="translate(-4 10) scale(0.92)"/>
+      </symbol>
+      <symbol id="i-fog" viewBox="0 0 100 100">
+        <use href="#cloud-line" transform="translate(2 -16) scale(0.9)"/>
+        <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+          <line x1="22" y1="74" x2="78" y2="74"/>
+          <line x1="30" y1="86" x2="70" y2="86"/>
+        </g>
+      </symbol>
+      <symbol id="i-drizzle" viewBox="0 0 100 100">
+        <use href="#cloud-line" transform="translate(2 -16) scale(0.9)"/>
+        <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+          <line x1="33" y1="72" x2="31" y2="79"/>
+          <line x1="52" y1="72" x2="50" y2="79"/>
+          <line x1="71" y1="72" x2="69" y2="79"/>
+          <line x1="42" y1="85" x2="40" y2="92"/>
+          <line x1="61" y1="85" x2="59" y2="92"/>
+        </g>
+      </symbol>
+      <symbol id="i-rain" viewBox="0 0 100 100">
+        <use href="#cloud-line" transform="translate(2 -16) scale(0.9)"/>
+        <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+          <line x1="35" y1="70" x2="30" y2="88"/>
+          <line x1="54" y1="70" x2="49" y2="88"/>
+          <line x1="73" y1="70" x2="68" y2="88"/>
+        </g>
+      </symbol>
+      <symbol id="i-snow" viewBox="0 0 100 100">
+        <use href="#cloud-line" transform="translate(2 -16) scale(0.9)"/>
+        <g stroke="#fff" stroke-width="3.6" stroke-linecap="round">
+          <g transform="translate(33 80)">
+            <line x1="-7" y1="0" x2="7" y2="0"/><line x1="0" y1="-7" x2="0" y2="7"/>
+            <line x1="-5" y1="-5" x2="5" y2="5"/><line x1="-5" y1="5" x2="5" y2="-5"/>
+          </g>
+          <g transform="translate(67 80)">
+            <line x1="-7" y1="0" x2="7" y2="0"/><line x1="0" y1="-7" x2="0" y2="7"/>
+            <line x1="-5" y1="-5" x2="5" y2="5"/><line x1="-5" y1="5" x2="5" y2="-5"/>
+          </g>
+        </g>
+      </symbol>
+      <symbol id="i-thunder" viewBox="0 0 100 100">
+        <use href="#cloud-line" transform="translate(2 -16) scale(0.9)"/>
+        <polygon points="54,58 40,78 50,78 45,94 64,71 53,71 60,58"
+                 fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+        <g stroke="#fff" stroke-width="4" stroke-linecap="round">
+          <line x1="27" y1="70" x2="23" y2="84"/>
+          <line x1="77" y1="70" x2="73" y2="84"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="header">
+    <div class="date">{{DATE}}</div>
+    <div class="time">{{TIME}}</div>
+    <div class="city">{{CITY}}</div>
+  </div>
+
+  <div class="hero">
+    <svg class="hero-icon" viewBox="0 0 100 100"><use href="#i-{{ICON}}"/></svg>
+
+    <div class="temp">{{TEMP}}&deg;</div>
+    <div class="condition">{{CONDITION}} &middot; {{PRECIP}}% rain</div>
+    <div class="subline">Feels like {{FEELS}}&deg; &middot; Humidity {{HUMIDITY}}%</div>
+
+    <div class="rule"></div>
+  </div>
+
+  <div class="forecast-wrap">
+    <div class="forecast">
+{{CELLS}}
+    </div>
+  </div>
+</body>
+</html>
