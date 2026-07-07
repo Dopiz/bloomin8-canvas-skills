@@ -57,9 +57,14 @@ One skill, **[bloomin8-canvas](skills/bloomin8-canvas/SKILL.md)**, organized by 
   uv run skills/bloomin8-canvas/scripts/client.py upload /tmp/crypto.jpg --prefix crypto
   ```
 
-  <img src="docs/demo-crypto-dashboard.jpg" alt="Crypto dashboard demo (BTC/ETH/BNB/ADA, 1200×1600 portrait)" width="480">
+### Demos
 
-  *Demo output: `--symbols BTC,ETH,BNB,ADA` on a 1200×1600 portrait panel — coin icons, 24H change badges, sparklines with a dashed 0%-reference line.*
+All rendered at the panel's native 1200×1600; landscape layouts are also supported per dashboard.
+
+| Crypto | Weather | Countdown |
+|:---:|:---:|:---:|
+| <img src="docs/demo-crypto-dashboard.jpg" alt="Crypto dashboard — BTC/ETH/BNB/ADA with coin icons, 24H change badges, sparklines" width="260"> | <img src="docs/demo-weather-dashboard.jpg" alt="Weather dashboard — condition-driven gradient, line-art icons, 3-hourly forecast strip" width="260"> | <img src="docs/demo-countdown.jpg" alt="Countdown — days until a date over Met Museum artwork" width="260"> |
+| `render.py --symbols BTC,ETH,BNB,ADA` | `weather.py --city "Taipei City"` | `countdown.py --date 2026-12-31 --title "New Year's Eve"` |
 
 ## Using it with Claude Code
 
